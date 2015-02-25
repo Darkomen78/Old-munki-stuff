@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version 0.1 by Sylvain La Gravière
+# Version 0.5 by Sylvain La Gravière
 # Twitter : @darkomen78
 # Mail : darkomen@me.com
 
@@ -58,7 +58,7 @@ cp "$ROOTDIR"/Munki2_source/CLIENT.configure "$ROOTDIR"/Munki2_source/CLIENT.def
 
 echo "Download latest version of Munki"
 if [ -f "$ROOTDIR"/Munki2_source/munkitools2.pkg ]; then 
-	rm -f "$ROOTDIR"/Munki2_source/munkitools2.pkg
+	rm "$ROOTDIR"/Munki2_source/munkitools2.pkg
 fi	
 curl -s "$MUNKISRC" -o "$ROOTDIR"/Munki2_source/munkitools2.pkg
 pkgutil --expand "$ROOTDIR"/Munki2_source/munkitools2.pkg "$ROOTDIR"/temp
@@ -122,9 +122,11 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
 	echo "...remove source files"
-	rm -Rf "$ROOTDIR"/Munki2_source/
+	rm -R "$ROOTDIR"/Munki2_source/
+      rm "$ROOTDIR"/Munki2.pkgproj
 else
 	echo "...keep source files"
       mv "$ROOTDIR"/Munki2_source/intro.default "$ROOTDIR"/Munki2_source/intro.txt  
       mv "$ROOTDIR"/Munki2_source/CLIENT.default "$ROOTDIR"/Munki2_source/CLIENT.configure
-fi	
+fi
+open "$ROOTDIR"/build
