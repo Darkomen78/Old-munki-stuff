@@ -44,7 +44,7 @@ if [ ! -d /Applications/Packages.app ]; then
       cd /tmp/
       curl -O -L $PACKAGESSRC && echo "Download Stéphane Sudre's Packages install"
       hdiutil mount /tmp/Packages.dmg && echo "Mount Packages install"
-      /usr/sbin/installer -dumplog -verbose -pkg "/Volumes/Packages/packages/Packages.pkg" -target / && echo "Install Packages" && hdiutil unmount /Volumes/Packages/ && echo "Unmount Packages install"
+      sudo /usr/sbin/installer -dumplog -verbose -pkg "/Volumes/Packages/packages/Packages.pkg" -target / && echo "Install Packages" && hdiutil unmount /Volumes/Packages/ && echo "Unmount Packages install"
       cd "$ROOTDIR"
 fi
 
