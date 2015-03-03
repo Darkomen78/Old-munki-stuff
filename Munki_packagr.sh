@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version 1.0 by Sylvain La Gravière
+# Version 1.0.1 by Sylvain La Gravière
 # Twitter : @darkomen78
 # Mail : darkomen@me.com
 
@@ -87,17 +87,17 @@ checkboxes=($(echo "${dialog}" | awk 'NR>1{print $0}'));
 if [ "${checkboxes[0]}" = "1" ]; then
       #Do the dialog Munki Server, get the result and strip the Ok button code
       RESPONSE2=`$POPUP $RUNMODE --button1 "Ok" $OTHEROPTS2  --icon $ICON2 --title "${TITLE2}" --text "${TEXT2}" --label "$TEXTB2"`
-      MUNKISRV=`echo $RESPONSE2 | sed 's/Ok//g' | sed 's/^[ \t]*//'`
+      MUNKISRV=`echo $RESPONSE2 | sed 's/Ok//g' | sed 's/ //g'`
 fi
 if [ "${checkboxes[1]}" = "1" ]; then
       #Do the dialog Manifest, get the result and strip the Ok button code
       RESPONSE=`$POPUP $RUNMODE --button1 "Ok" $OTHEROPTS  --icon $ICON --title "${TITLE}" --text "${TEXT}" --label "$TEXTB"`
-      MANIFEST=`echo $RESPONSE | sed 's/Ok//g' | sed 's/^[ \t]*//'`
+      MANIFEST=`echo $RESPONSE | sed 's/Ok//g' | sed 's/ //g'`
 fi
 if [ "${checkboxes[2]}" = "1" ]; then
       #Do the dialog Reposado Server, get the result and strip the Ok button code
       RESPONSE3=`$POPUP $RUNMODE --button1 "Ok" $OTHEROPTS3  --icon $ICON3 --title "${TITLE3}" --text "${TEXT3}" --label "$TEXT3B"`
-      REPOSADOSRV=`echo $RESPONSE3 | sed 's/Ok//g' | sed 's/^[ \t]*//'`
+      REPOSADOSRV=`echo $RESPONSE3 | sed 's/Ok//g' | sed 's/ //g'`
       sed -i .temp "s/myreposado/$REPOSADOSRV/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
       echo "" >> "$ROOTDIR"/Munki2_source/intro.txt
       echo "• Les mises à jour Apple sont configurées vers le serveur $REPOSADOSRV" >> "$ROOTDIR"/Munki2_source/intro.txt
@@ -113,7 +113,7 @@ if [ "${checkboxes[3]}" = "1" ]; then
 else
       #Do the dialog Notifications, get the result and strip the Ok button code
       RESPONSE4=`$POPUP dropdown --button1 "Ok" $OTHEROPTS4  --icon $ICON4 --title "${TITLE4}" --text "${TEXT4}" --items "1" "2" "3" "4" "5" "7" "30" `
-      XDAYS=`echo $RESPONSE4 | sed 's/Ok//g' | sed 's/^[ \t]*//'`
+      XDAYS=`echo $RESPONSE4 | sed 's/Ok//g' | sed 's/ //g'`
       echo "" >> "$ROOTDIR"/Munki2_source/intro.txt
       echo "• Les notifications des mises à jour se font tout les $XDAYS jours" >> "$ROOTDIR"/Munki2_source/intro.txt
 fi
@@ -130,7 +130,7 @@ rm "$ROOTDIR"/Munki2_source/*.temp
 if [ -d "$ROOTDIR"/build/"$MUNKISRV"_"$MUNKIVER".mpkg ]; then
       rm -Rf "$ROOTDIR"/build/"$MUNKISRV"_"$MUNKIVER".mpkg
 fi
-/usr/local/bin/packagesbuild -v "$ROOTDIR/Munki2.pkgproj" && mv "$ROOTDIR/build/Munki2.mpkg" "$ROOTDIR"/build/"$MUNKISRV"_"$MUNKIVER".mpkg
+/usr/local/bin/packagesbuild -v "$ROOTDIR/Munki2.pkgproj" && mv "$ROOTDIR/build/Munki2.mpkg" "$ROOTDIR"/build/"$MUNKISRV"_"$MUNKIVER"_"$MANIFEST".mpkg
 
 
 read -p "----------------> Delete source files ? [N] " -n 1 -r
