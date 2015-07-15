@@ -1,13 +1,16 @@
 #!/bin/bash
 
-# Version 1.0.1 by Sylvain La Gravière
+# Version 1.1 by Sylvain La Gravière
 # Twitter : @darkomen78
 # Mail : darkomen@me.com
 
 # Current dir
 ROOTDIR="`pwd`"
 # Source base URL
-MUNKISRC="https://munkibuilds.org/munkitools2-latest.pkg"
+GITMUNKI="https://github.com/munki/munki/releases/latest"
+LATESTVER=$(curl -L -s "$GITMUNKI" | egrep releases.*pkg | sed -ne 's/.*\(\/munki\/[^"]*\).*/\1/p')
+MUNKIVER=$(curl -L -s "$GITMUNKI" | egrep releases.*pkg | sed -ne 's/.*\(v[0-9].[0-9].[0-9]\).*/\1/p')
+MUNKISRC="https://github.com/munki"$LATESTVER
 PACKAGESSRC="http://s.sudre.free.fr/Software/files/Packages.dmg"
 GITSRC="https://raw.github.com/Darkomen78/Munki/master/"
 
@@ -30,7 +33,7 @@ OTHEROPTS2="--float --string-output --no-cancel"
 ICON2="fileserver"
 
 # Options for cocoaDialog Reposado Server
-TITLE3="Reposado Server"
+TITLE3="Reposado or Apple update server"
 TEXT3="reposado.mydomain.lan"
 TEXT3B="Enter adress without http:// and without index.sucatalog"
 OTHEROPTS3="--float --string-output --no-cancel"
@@ -51,32 +54,41 @@ if [ ! -d /Applications/Packages.app ]; then
       cd "$ROOTDIR"
 fi
 
-if [ ! -d "$ROOTDIR"/Munki2_source ]; then
-	echo "Download latest version of pkg source"
-	curl -O -L "$GITSRC"Munki2prepkg.zip
-	unzip "Munki2prepkg.zip" && rm "Munki2prepkg.zip" && rm -R "__MACOSX" && mv Munki2prepkg/* $ROOTDIR/ && rm -R Munki2prepkg
+if [ -d "$ROOTDIR"/Munki2_source ]; then
+      read -p "----------------> Use current source files ? [Y] " -n 1 -r
+      echo
+      if [[ $REPLY =~ ^[Nn]$ ]]
+      then
+            rm -R "$ROOTDIR"/Munki2_source
+            echo "Download latest version of pkg source..."
+	      curl -O -s -L "$GITSRC"Munki2prepkg.zip
+	      unzip "Munki2prepkg.zip" &> /dev/null && rm "Munki2prepkg.zip" && rm -R "__MACOSX" && mv Munki2prepkg/* $ROOTDIR/ && rm -R Munki2prepkg
+            echo "Download latest version of Munki..."
+            curl -s -L "$MUNKISRC" -o "$ROOTDIR"/Munki2_source/munkitools2.pkg
+            echo "...update version on pkgproj file to" $MUNKIVER
+            packagesutil --file Munki2.pkgproj set package-1 version $MUNKIVER
+      else
+            echo "...skip update source files"
+      fi
+else
+      echo "Download latest version of pkg source..."
+      curl -O -s -L "$GITSRC"Munki2prepkg.zip
+      unzip "Munki2prepkg.zip" &> /dev/null && rm "Munki2prepkg.zip" && rm -R "__MACOSX" && mv Munki2prepkg/* $ROOTDIR/ && rm -R Munki2prepkg
+      echo "Download latest version of Munki..."
+      curl -s -L "$MUNKISRC" -o "$ROOTDIR"/Munki2_source/munkitools2.pkg
+      echo "...update version on pkgproj file to" $MUNKIVER
+      packagesutil --file Munki2.pkgproj set package-1 version $MUNKIVER
 fi
+
 cp "$ROOTDIR"/Munki2_source/intro.txt "$ROOTDIR"/Munki2_source/intro.default
 cp "$ROOTDIR"/Munki2_source/CLIENT.configure "$ROOTDIR"/Munki2_source/CLIENT.default
-
-echo "Download latest version of Munki"
-if [ -f "$ROOTDIR"/Munki2_source/munkitools2.pkg ]; then 
-	rm "$ROOTDIR"/Munki2_source/munkitools2.pkg
-fi	
-curl -s "$MUNKISRC" -o "$ROOTDIR"/Munki2_source/munkitools2.pkg
-pkgutil --expand "$ROOTDIR"/Munki2_source/munkitools2.pkg "$ROOTDIR"/temp
-MUNKIVER=$(ls -la "$ROOTDIR"/temp/ | grep core | sed 's/.*-//' | sed 's/.pkg//')
-rm -R "$ROOTDIR"/temp/
-
-echo "met à jour la version du .pkgproj à " $MUNKIVER
-packagesutil --file Munki2.pkgproj set package-1 version $MUNKIVER
 
 dialog=$($POPUP checkbox --title "Configure options" \
       --label "Choose :" \
       --icon preferences \
-      --items `#box0` "Munki Adress" `#box1` "Manifest" `#box2` "Reposado Adress" `#box3` "No notifications" \
+      --items `#box0` "Munki Server" `#box1` "Manifest" `#box2` "Apple Software Update" `#box3` "No notifications" \
       --rows 10 \
-      --disabled 0 1 \
+      --disabled 0 \
       --checked 0 1 \
       --value-required \
       --button1 "Ok" \
@@ -99,11 +111,16 @@ if [ "${checkboxes[2]}" = "1" ]; then
       RESPONSE3=`$POPUP $RUNMODE --button1 "Ok" $OTHEROPTS3  --icon $ICON3 --title "${TITLE3}" --text "${TEXT3}" --label "$TEXT3B"`
       REPOSADOSRV=`echo $RESPONSE3 | sed 's/Ok//g' | sed 's/ //g'`
       sed -i .temp "s/myreposado/$REPOSADOSRV/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+      sed -i .temp "s/myappleupdate/true/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
       echo "" >> "$ROOTDIR"/Munki2_source/intro.txt
       echo "• Les mises à jour Apple sont configurées vers le serveur $REPOSADOSRV" >> "$ROOTDIR"/Munki2_source/intro.txt
+
 else 
       REPOSADOSRV=''
       sed -i .temp "s/http\:\/\/myreposado\/index.sucatalog/$REPOSADOSRV/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+      sed -i .temp "s/appleupdate/false/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+      echo "" >> "$ROOTDIR"/Munki2_source/intro.txt
+      echo "• Les mises à jour Apple ne seront pas gérées par Munki" >> "$ROOTDIR"/Munki2_source/intro.txt
 fi
 if [ "${checkboxes[3]}" = "1" ]; then
       sed -i .temp "s/SUPPRESSUSERNOTIFICATION=false/SUPPRESSUSERNOTIFICATION=true/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
@@ -131,7 +148,6 @@ if [ -d "$ROOTDIR"/build/"$MUNKISRV"_"$MUNKIVER".mpkg ]; then
       rm -Rf "$ROOTDIR"/build/"$MUNKISRV"_"$MUNKIVER".mpkg
 fi
 /usr/local/bin/packagesbuild -v "$ROOTDIR/Munki2.pkgproj" && mv "$ROOTDIR/build/Munki2.mpkg" "$ROOTDIR"/build/"$MUNKISRV"_"$MUNKIVER"_"$MANIFEST".mpkg
-
 
 read -p "----------------> Delete source files ? [N] " -n 1 -r
 echo
