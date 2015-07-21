@@ -111,14 +111,14 @@ if [ "${checkboxes[2]}" = "1" ]; then
       RESPONSE3=`$POPUP $RUNMODE --button1 "Ok" $OTHEROPTS3  --icon $ICON3 --title "${TITLE3}" --text "${TEXT3}" --label "$TEXT3B"`
       REPOSADOSRV=`echo $RESPONSE3 | sed 's/Ok//g' | sed 's/ //g'`
       sed -i .temp "s/myreposado/$REPOSADOSRV/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
-      sed -i .temp "s/myappleupdate/true/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+      sed -i .temp "s/myASUS/true/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
       echo "" >> "$ROOTDIR"/Munki2_source/intro.txt
       echo "• Les mises à jour Apple sont configurées vers le serveur $REPOSADOSRV" >> "$ROOTDIR"/Munki2_source/intro.txt
 
 else 
       REPOSADOSRV=''
       sed -i .temp "s/http\:\/\/myreposado\/index.sucatalog/$REPOSADOSRV/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
-      sed -i .temp "s/appleupdate/false/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+      sed -i .temp "s/myASUS/false/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
       echo "" >> "$ROOTDIR"/Munki2_source/intro.txt
       echo "• Les mises à jour Apple ne seront pas gérées par Munki" >> "$ROOTDIR"/Munki2_source/intro.txt
 fi
