@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version 1.1 by Sylvain La Gravière
+# Version 1.2 by Sylvain La Gravière
 # Twitter : @darkomen78
 # Mail : darkomen@me.com
 
@@ -80,16 +80,20 @@ else
       packagesutil --file Munki2.pkgproj set package-1 version $MUNKIVER
 fi
 
+# Duplicate default file for sed
 cp "$ROOTDIR"/Munki2_source/intro.txt "$ROOTDIR"/Munki2_source/intro.default
 cp "$ROOTDIR"/Munki2_source/CLIENT.configure "$ROOTDIR"/Munki2_source/CLIENT.default
+
+# Add version in Package Intro text
+sed -i .temp "s/myversion/$MUNKIVER/g" "$ROOTDIR"/Munki2_source/intro.txt
 
 dialog=$($POPUP checkbox --title "Configure options" \
       --label "Choose :" \
       --icon preferences \
-      --items `#box0` "Munki Server" `#box1` "Manifest" `#box2` "Apple Software Update" `#box3` "No notifications" \
+      --items `#box0` "Munki Server" `#box1` "Manifest" `#box2` "Apple Software Update" `#box3` "No notifications" `#box4` "First boot check" \
       --rows 10 \
       --disabled 0 \
-      --checked 0 1 \
+      --checked 0 1 4 \
       --value-required \
       --button1 "Ok" \
       --resize);
@@ -97,24 +101,32 @@ dialog=$($POPUP checkbox --title "Configure options" \
 checkboxes=($(echo "${dialog}" | awk 'NR>1{print $0}'));
 
 if [ "${checkboxes[0]}" = "1" ]; then
-      #Do the dialog Munki Server, get the result and strip the Ok button code
+      # Do the dialog Munki Server, add result in CONFIGURE and Intro file
       RESPONSE2=`$POPUP $RUNMODE --button1 "Ok" $OTHEROPTS2  --icon $ICON2 --title "${TITLE2}" --text "${TEXT2}" --label "$TEXTB2"`
       MUNKISRV=`echo $RESPONSE2 | sed 's/Ok//g' | sed 's/ //g'`
+      sed -i .temp "s/mymunki/$MUNKISRV/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+      sed -i .temp "s/mymunki/$MUNKISRV/g" "$ROOTDIR"/Munki2_source/intro.txt
 fi
+
 if [ "${checkboxes[1]}" = "1" ]; then
-      #Do the dialog Manifest, get the result and strip the Ok button code
+      # Do the dialog Manifest, add result in CONFIGURE and Intro file
       RESPONSE=`$POPUP $RUNMODE --button1 "Ok" $OTHEROPTS  --icon $ICON --title "${TITLE}" --text "${TEXT}" --label "$TEXTB"`
       MANIFEST=`echo $RESPONSE | sed 's/Ok//g' | sed 's/ //g'`
+      echo "• Le manifest est le fichier "mymanifest" sur le serveur mymunki" >> "$ROOTDIR"/Munki2_source/intro.txt
+      sed -i .temp "s/mymanifest/$MANIFEST/g" "$ROOTDIR"/Munki2_source/intro.txt
+      sed -i .temp "s/mymanifest/$MANIFEST/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+else
+      echo "• Il n'y a pas de manifest par défaut pour ce client" >> "$ROOTDIR"/Munki2_source/intro.txt
 fi
+
 if [ "${checkboxes[2]}" = "1" ]; then
-      #Do the dialog Reposado Server, get the result and strip the Ok button code
+      # Do the dialog Reposado Server, add result in CONFIGURE and Intro file
       RESPONSE3=`$POPUP $RUNMODE --button1 "Ok" $OTHEROPTS3  --icon $ICON3 --title "${TITLE3}" --text "${TEXT3}" --label "$TEXT3B"`
       REPOSADOSRV=`echo $RESPONSE3 | sed 's/Ok//g' | sed 's/ //g'`
       sed -i .temp "s/myreposado/$REPOSADOSRV/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
       sed -i .temp "s/myASUS/true/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
       echo "" >> "$ROOTDIR"/Munki2_source/intro.txt
       echo "• Les mises à jour Apple sont configurées vers le serveur $REPOSADOSRV" >> "$ROOTDIR"/Munki2_source/intro.txt
-
 else 
       REPOSADOSRV=''
       sed -i .temp "s/http\:\/\/myreposado\/index.sucatalog/$REPOSADOSRV/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
@@ -122,31 +134,32 @@ else
       echo "" >> "$ROOTDIR"/Munki2_source/intro.txt
       echo "• Les mises à jour Apple ne seront pas gérées par Munki" >> "$ROOTDIR"/Munki2_source/intro.txt
 fi
+
 if [ "${checkboxes[3]}" = "1" ]; then
+      # Do the dialog Notifications, gadd result in CONFIGURE and Intro file
       sed -i .temp "s/SUPPRESSUSERNOTIFICATION=false/SUPPRESSUSERNOTIFICATION=true/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
-      XDAYS="0"
       echo "" >> "$ROOTDIR"/Munki2_source/intro.txt
       echo "• Aucune notification des mises à jour à l'utilisateur" >> "$ROOTDIR"/Munki2_source/intro.txt
 else
-      #Do the dialog Notifications, get the result and strip the Ok button code
       RESPONSE4=`$POPUP dropdown --button1 "Ok" $OTHEROPTS4  --icon $ICON4 --title "${TITLE4}" --text "${TEXT4}" --items "1" "2" "3" "4" "5" "7" "30" `
       XDAYS=`echo $RESPONSE4 | sed 's/Ok//g' | sed 's/ //g'`
+      sed -i .temp "s/xdays/$XDAYS/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
       echo "" >> "$ROOTDIR"/Munki2_source/intro.txt
       echo "• Les notifications des mises à jour se font tout les $XDAYS jours" >> "$ROOTDIR"/Munki2_source/intro.txt
 fi
+if [ "${checkboxes[4]}" = "1" ]; then
+      sed -i .temp "s/myboot/true/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+fi
 
-sed -i .temp "s/mymanifest/$MANIFEST/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
-sed -i .temp "s/mymunki/$MUNKISRV/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
-sed -i .temp "s/xdays/$XDAYS/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
-sed -i .temp "s/mymanifest/$MANIFEST/g" "$ROOTDIR"/Munki2_source/intro.txt
-sed -i .temp "s/mymunki/$MUNKISRV/g" "$ROOTDIR"/Munki2_source/intro.txt
-sed -i .temp "s/myversion/$MUNKIVER/g" "$ROOTDIR"/Munki2_source/intro.txt
-sed -i .temp "s/xdays/$XDAYS/g" "$ROOTDIR"/Munki2_source/intro.txt
+# Remove temp files
 rm "$ROOTDIR"/Munki2_source/*.temp
 
+# Remove old package file
 if [ -d "$ROOTDIR"/build/"$MUNKISRV"_"$MUNKIVER".mpkg ]; then
       rm -Rf "$ROOTDIR"/build/"$MUNKISRV"_"$MUNKIVER".mpkg
 fi
+
+# Build new package file
 /usr/local/bin/packagesbuild -v "$ROOTDIR/Munki2.pkgproj" && mv "$ROOTDIR/build/Munki2.mpkg" "$ROOTDIR"/build/"$MUNKISRV"_"$MUNKIVER"_"$MANIFEST".mpkg
 
 read -p "----------------> Delete source files ? [N] " -n 1 -r
