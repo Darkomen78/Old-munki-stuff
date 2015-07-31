@@ -90,7 +90,7 @@ sed -i .temp "s/myversion/$MUNKIVER/g" "$ROOTDIR"/Munki2_source/intro.txt
 dialog=$($POPUP checkbox --title "Configure options" \
       --label "Choose :" \
       --icon preferences \
-      --items `#box0` "Munki Server" `#box1` "Manifest" `#box2` "Apple Software Update" `#box3` "No notifications" `#box4` "First boot check" \
+      --items `#box0` "Munki Server" `#box1` "Manifest" `#box2` "Apple Software Update" `#box3` "No notifications" `#box4` "Check on the next boot" \
       --rows 10 \
       --disabled 0 \
       --checked 0 1 4 \
@@ -117,6 +117,7 @@ if [ "${checkboxes[1]}" = "1" ]; then
       sed -i .temp "s/mymanifest/$MANIFEST/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
 else
       echo "• Il n'y a pas de manifest par défaut pour ce client" >> "$ROOTDIR"/Munki2_source/intro.txt
+      MANIFEST="no_manifest"
 fi
 
 if [ "${checkboxes[2]}" = "1" ]; then
@@ -149,6 +150,11 @@ else
 fi
 if [ "${checkboxes[4]}" = "1" ]; then
       sed -i .temp "s/myboot/true/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+      echo "" >> "$ROOTDIR"/Munki2_source/intro.txt
+      echo "• L'agent lancera une première vérification au prochain démarrage" >> "$ROOTDIR"/Munki2_source/intro.txt
+else
+      echo "" >> "$ROOTDIR"/Munki2_source/intro.txt
+      echo "• L'agent ne lancera pas de première vérification au prochain démarrage" >> "$ROOTDIR"/Munki2_source/intro.txt
 fi
 
 # Remove temp files
