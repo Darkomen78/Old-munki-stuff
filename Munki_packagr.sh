@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version 1.2.1 by Sylvain La Gravière
+# Version 1.2.1b by Sylvain La Gravière
 # Twitter : @darkomen78
 # Mail : darkomen@me.com
 
@@ -112,11 +112,12 @@ if [ "${checkboxes[1]}" = "1" ]; then
       # Do the dialog Manifest, add result in CONFIGURE and Intro file
       RESPONSE=`$POPUP $RUNMODE --button1 "Ok" $OTHEROPTS  --icon $ICON --title "${TITLE}" --text "${TEXT}" --label "$TEXTB"`
       MANIFEST=`echo $RESPONSE | sed 's/Ok//g' | sed 's/ //g'`
-      echo "• Le manifest est le fichier "mymanifest" sur le serveur mymunki" >> "$ROOTDIR"/Munki2_source/intro.txt
+      echo "• Le manifest est le fichier $MANIFEST sur le serveur $MUNKISRV" >> "$ROOTDIR"/Munki2_source/intro.txt
       sed -i .temp "s/mymanifest/$MANIFEST/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
 else
       echo "• Il n'y a pas de manifest par défaut pour ce client" >> "$ROOTDIR"/Munki2_source/intro.txt
       sed -i .temp "s/mymanifest//g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+      MANIFEST="No_manifest"
 fi
 
 if [ "${checkboxes[2]}" = "1" ]; then
