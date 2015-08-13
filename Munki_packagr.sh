@@ -62,12 +62,11 @@ if [ -d "$ROOTDIR"/Munki2_source ]; then
             rm -R "$ROOTDIR"/Munki2_source
             echo "Download latest version of pkg source..."
 	      curl -O -s -L "$GITSRC"Munki2prepkg.zip
-	      unzip "Munki2prepkg.zip" &> /dev/null && rm "Munki2prepkg.zip" && rm -R "__MACOSX" && mv Munki2prepkg/* $ROOTDIR/ && rm -R Munki2prepkg
+            unzip "Munki2prepkg.zip" &> /dev/null && rm "Munki2prepkg.zip" && mv Munki2prepkg/* $ROOTDIR/ && rm -R Munki2prepkg            
             echo "Download latest version of Munki..."
-            curl -s -L "$MUNKISRC" -o "$ROOTDIR"/Munki2_source/munkitools2.pkg
-            pkgutil --expand "$ROOTDIR"/Munki2_source/munkitools2.pkg "$ROOTDIR"/Munki2_source/src
-            MUNKIVER=$(ls -la "$ROOTDIR"/Munki2_source/ | grep core | sed 's/.*-//' | sed 's/.pkg//')
-             mv "$ROOTDIR"/Munki2_source/src/*app*.pkg "$ROOTDIR"/Munki2_source/src/app.pkg
+            curl -s -L "$MUNKISRC" -o "$ROOTDIR"/Munki2_source/munkitools2.pkg && pkgutil --expand "$ROOTDIR"/Munki2_source/munkitools2.pkg "$ROOTDIR"/Munki2_source/src
+            MUNKIVER=$(ls -la "$ROOTDIR"/Munki2_source/src/ | grep core | sed 's/.*-//' | sed 's/.pkg//')
+            mv "$ROOTDIR"/Munki2_source/src/*app*.pkg "$ROOTDIR"/Munki2_source/src/app.pkg
             mv "$ROOTDIR"/Munki2_source/src/*core*.pkg "$ROOTDIR"/Munki2_source/src/core.pkg
             mv "$ROOTDIR"/Munki2_source/src/*launchd*.pkg "$ROOTDIR"/Munki2_source/src/launchd.pkg
             echo "...update version on pkgproj file to" $MUNKIVER
@@ -78,11 +77,10 @@ if [ -d "$ROOTDIR"/Munki2_source ]; then
 else
       echo "Download latest version of pkg source..."
       curl -O -s -L "$GITSRC"Munki2prepkg.zip
-      unzip "Munki2prepkg.zip" &> /dev/null && rm "Munki2prepkg.zip" && rm -R "__MACOSX" && mv Munki2prepkg/* $ROOTDIR/ && rm -R Munki2prepkg
+      unzip "Munki2prepkg.zip" &> /dev/null && rm "Munki2prepkg.zip" && mv Munki2prepkg/* $ROOTDIR/ && rm -R Munki2prepkg
       echo "Download latest version of Munki..."
-      curl -s -L "$MUNKISRC" -o "$ROOTDIR"/Munki2_source/munkitools2.pkg
-      pkgutil --expand "$ROOTDIR"/Munki2_source/munkitools2.pkg "$ROOTDIR"/Munki2_source/src
-      MUNKIVER=$(ls -la "$ROOTDIR"/Munki2_source/ | grep core | sed 's/.*-//' | sed 's/.pkg//')
+      curl -s -L "$MUNKISRC" -o "$ROOTDIR"/Munki2_source/munkitools2.pkg && pkgutil --expand "$ROOTDIR"/Munki2_source/munkitools2.pkg "$ROOTDIR"/Munki2_source/src
+      MUNKIVER=$(ls -la "$ROOTDIR"/Munki2_source/src/ | grep core | sed 's/.*-//' | sed 's/.pkg//')
       mv "$ROOTDIR"/Munki2_source/src/*app*.pkg "$ROOTDIR"/Munki2_source/src/app.pkg
       mv "$ROOTDIR"/Munki2_source/src/*core*.pkg "$ROOTDIR"/Munki2_source/src/core.pkg
       mv "$ROOTDIR"/Munki2_source/src/*launchd*.pkg "$ROOTDIR"/Munki2_source/src/launchd.pkg
