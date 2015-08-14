@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version 1.2.1b by Sylvain La Gravière
+# Version 1.3 by Sylvain La Gravière
 # Twitter : @darkomen78
 # Mail : darkomen@me.com
 
@@ -9,10 +9,10 @@ ROOTDIR="`pwd`"
 # Source base URL
 GITMUNKI="https://github.com/munki/munki/releases/latest"
 LATESTVER=$(curl -L -s "$GITMUNKI" | egrep releases.*pkg | sed -ne 's/.*\(\/munki\/[^"]*\).*/\1/p')
-MUNKIVER=$(curl -L -s "$GITMUNKI" | egrep releases.*pkg | sed -ne 's/.*\(v[0-9].[0-9].[0-9]\).*/\1/p')
+# MUNKIVER=$(curl -L -s "$GITMUNKI" | egrep releases.*pkg | sed -ne 's/.*\(v[0-9].[0-9].[0-9]\).*/\1/p')
 MUNKISRC="https://github.com/munki"$LATESTVER
 PACKAGESSRC="http://s.sudre.free.fr/Software/files/Packages.dmg"
-GITSRC="https://raw.github.com/Darkomen78/Munki/master/"
+GITSRC="https://raw.github.com/Darkomen78/Munki/dev/"
 
 # CocoaDialog path
 POPUP="$(dirname "$0")"/Munki2_source/cocoaDialog.app/Contents/MacOS/cocoaDialog
@@ -62,9 +62,11 @@ if [ -d "$ROOTDIR"/Munki2_source ]; then
             rm -R "$ROOTDIR"/Munki2_source
             echo "Download latest version of pkg source..."
 	      curl -O -s -L "$GITSRC"Munki2prepkg.zip
-	      unzip "Munki2prepkg.zip" &> /dev/null && rm "Munki2prepkg.zip" && rm -R "__MACOSX" && mv Munki2prepkg/* $ROOTDIR/ && rm -R Munki2prepkg
+            unzip -q "Munki2prepkg.zip" && rm "Munki2prepkg.zip"         
             echo "Download latest version of Munki..."
-            curl -s -L "$MUNKISRC" -o "$ROOTDIR"/Munki2_source/munkitools2.pkg
+            curl -s -L "$MUNKISRC" -o "$ROOTDIR"/Munki2_source/munkitools2.pkg && pkgutil --expand "$ROOTDIR"/Munki2_source/munkitools2.pkg "$ROOTDIR"/Munki2_source/src
+            MUNKIVER=$(ls -la "$ROOTDIR"/Munki2_source/src/ | grep core | sed 's/.*-//' | sed 's/.pkg//')
+            rm -Rf "$ROOTDIR"/Munki2_source/src
             echo "...update version on pkgproj file to" $MUNKIVER
             packagesutil --file Munki2.pkgproj set package-1 version $MUNKIVER
       else
@@ -73,9 +75,11 @@ if [ -d "$ROOTDIR"/Munki2_source ]; then
 else
       echo "Download latest version of pkg source..."
       curl -O -s -L "$GITSRC"Munki2prepkg.zip
-      unzip "Munki2prepkg.zip" &> /dev/null && rm "Munki2prepkg.zip" && rm -R "__MACOSX" && mv Munki2prepkg/* $ROOTDIR/ && rm -R Munki2prepkg
+      unzip -q "Munki2prepkg.zip" && rm "Munki2prepkg.zip"
       echo "Download latest version of Munki..."
-      curl -s -L "$MUNKISRC" -o "$ROOTDIR"/Munki2_source/munkitools2.pkg
+      curl -s -L "$MUNKISRC" -o "$ROOTDIR"/Munki2_source/munkitools2.pkg && pkgutil --expand "$ROOTDIR"/Munki2_source/munkitools2.pkg "$ROOTDIR"/Munki2_source/src
+      MUNKIVER=$(ls -la "$ROOTDIR"/Munki2_source/src/ | grep core | sed 's/.*-//' | sed 's/.pkg//')
+      rm -Rf "$ROOTDIR"/Munki2_source/src
       echo "...update version on pkgproj file to" $MUNKIVER
       packagesutil --file Munki2.pkgproj set package-1 version $MUNKIVER
 fi
