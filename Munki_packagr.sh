@@ -12,7 +12,7 @@ LATESTVER=$(curl -L -s "$GITMUNKI" | egrep releases.*pkg | sed -ne 's/.*\(\/munk
 # MUNKIVER=$(curl -L -s "$GITMUNKI" | egrep releases.*pkg | sed -ne 's/.*\(v[0-9].[0-9].[0-9]\).*/\1/p')
 MUNKISRC="https://github.com/munki"$LATESTVER
 PACKAGESSRC="http://s.sudre.free.fr/Software/files/Packages.dmg"
-GITSRC="https://raw.github.com/Darkomen78/Munki/dev/"
+GITSRC="https://raw.github.com/Darkomen78/Munki/master/"
 
 # CocoaDialog path
 POPUP="$(dirname "$0")"/Munki2_source/cocoaDialog.app/Contents/MacOS/cocoaDialog
