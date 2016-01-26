@@ -1,7 +1,11 @@
 #!/bin/bash
 
 echo 'Munki Tools install packager'
+<<<<<<< HEAD
 echo 'Version 1.3.4 by Sylvain La Gravière'
+=======
+echo 'Version 1.3.3 by Sylvain La Gravière'
+>>>>>>> origin/master
 echo 'Twitter : @darkomen78'
 echo 'Mail : darkomen@me.com'
 echo ''
@@ -29,14 +33,18 @@ ICON="gear"
 # Options for cocoaDialog Munki Server
 TITLE2="Munki server"
 TEXT2="munki.mydomain.lan"
-TEXTB2="Enter adress without http://"
+TEXTB2="Adress without http://"
 OTHEROPTS2="--float --string-output --no-cancel"
 ICON2="fileserver"
 
 # Options for cocoaDialog Reposado Server
 TITLE3="Reposado or Apple update server"
 TEXT3="reposado.mydomain.lan"
+<<<<<<< HEAD
 TEXT3B="Enter adress without http:// and without index.sucatalog, leave blank for Apple Server"
+=======
+TEXT3B="Adress without http:// and without index.sucatalog, leave blank for Apple Server"
+>>>>>>> origin/master
 OTHEROPTS3="--float --string-output --no-cancel"
 ICON3="fileserver"
 
@@ -57,6 +65,7 @@ fi
 
 # Prepare sources
 if [ -d "$ROOTDIR"/Munki2_source ]; then
+<<<<<<< HEAD
   read -p "----------------> Use current source files ? [Y] " -n 1 -r
   echo
   if [[ $REPLY =~ ^[Nn]$ ]]; then
@@ -77,6 +86,29 @@ else
   unzip -q "Munki2prepkg.zip" && rm "Munki2prepkg.zip"
   echo "Download latest version of Munki..."
   curl -s -L "$MUNKISRC" -o "$ROOTDIR"/Munki2_source/munkitools2.pkg && pkgutil --expand "$ROOTDIR"/Munki2_source/munkitools2.pkg "$ROOTDIR"/Munki2_source/src
+=======
+      read -p "----------------> Use current source files ? [Y] " -n 1 -r
+      echo
+      if [[ $REPLY =~ ^[Nn]$ ]]
+      then
+            echo "...remove source files"
+            rm -R "$ROOTDIR"/Munki2_source/
+            rm "$ROOTDIR"/Munki2.pkgproj
+            echo "Download latest version of pkg source..."
+	      curl -O -s -L "$GITSRC"Munki2prepkg.zip
+            unzip -q "Munki2prepkg.zip" && rm "Munki2prepkg.zip"         
+            echo "Download latest version of Munki..."
+            curl -s -L "$MUNKISRC" -o "$ROOTDIR"/Munki2_source/munkitools2.pkg && pkgutil --expand "$ROOTDIR"/Munki2_source/munkitools2.pkg "$ROOTDIR"/Munki2_source/src
+      else
+            echo "...skip update source files"
+      fi
+else
+      echo "Download latest version of pkg source..."
+      curl -O -s -L "$GITSRC"Munki2prepkg.zip
+      unzip -q "Munki2prepkg.zip" && rm "Munki2prepkg.zip"
+      echo "Download latest version of Munki..."
+      curl -s -L "$MUNKISRC" -o "$ROOTDIR"/Munki2_source/munkitools2.pkg && pkgutil --expand "$ROOTDIR"/Munki2_source/munkitools2.pkg "$ROOTDIR"/Munki2_source/src      
+>>>>>>> origin/master
 fi
 
 # Get core version
@@ -92,6 +124,7 @@ cp "$ROOTDIR"/Munki2_source/CLIENT.configure "$ROOTDIR"/Munki2_source/CLIENT.def
 sed -i .temp "s/myversion/$MUNKIVER/g" "$ROOTDIR"/Munki2_source/intro.txt
 
 dialog=$($POPUP checkbox --title "Configure options" \
+<<<<<<< HEAD
 --label "Choose :" \
 --icon preferences \
 --items `#box0` "Munki Server" `#box1` "Manifest" `#box2` "Apple Software Update" `#box3` "No notifications" `#box4` "Update on first boot" `#box5` "Update at every boot" \
@@ -101,6 +134,17 @@ dialog=$($POPUP checkbox --title "Configure options" \
 --value-required \
 --button1 "Ok" \
 --resize);
+=======
+      --label "Choose :" \
+      --icon preferences \
+      --items `#box0` "Munki Server" `#box1` "Manifest" `#box2` "Apple Software Update" `#box3` "No notifications" `#box4` "Update on first boot" `#box5` "Update at every boot" \
+      --rows 10 \
+      --disabled 0 \
+      --checked 0 1 4 \
+      --value-required \
+      --button1 "Ok" \
+      --resize);
+>>>>>>> origin/master
 
 checkboxes=($(echo "${dialog}" | awk 'NR>1{print $0}'));
 
@@ -113,11 +157,19 @@ if [ "${checkboxes[0]}" = "1" ]; then
 fi
 
 if [ "${checkboxes[1]}" = "1" ]; then
+<<<<<<< HEAD
   # Do the dialog Manifest, add result in CONFIGURE and Intro file
   RESPONSE=`$POPUP $RUNMODE --button1 "Ok" $OTHEROPTS  --icon $ICON --title "${TITLE}" --text "${TEXT}" --label "$TEXTB"`
   MANIFEST=`echo $RESPONSE | sed 's/Ok//g' | sed 's/ //g'`
   echo "• Le fichier $MANIFEST est le manifest par défaut sur le serveur $MUNKISRV" >> "$ROOTDIR"/Munki2_source/intro.txt
   sed -i .temp "s/mymanifest/$MANIFEST/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+=======
+      # Do the dialog Manifest, add result in CONFIGURE and Intro file
+      RESPONSE=`$POPUP $RUNMODE --button1 "Ok" $OTHEROPTS  --icon $ICON --title "${TITLE}" --text "${TEXT}" --label "$TEXTB"`
+      MANIFEST=`echo $RESPONSE | sed 's/Ok//g' | sed 's/ //g'`
+      echo "• Le fichier $MANIFEST est le manifest par défaut sur le serveur $MUNKISRV" >> "$ROOTDIR"/Munki2_source/intro.txt
+      sed -i .temp "s/mymanifest/$MANIFEST/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+>>>>>>> origin/master
 else
   echo "• Il n'y a pas de manifest par défaut pour ce client" >> "$ROOTDIR"/Munki2_source/intro.txt
   sed -i .temp "s/mymanifest//g" "$ROOTDIR"/Munki2_source/CLIENT.configure
@@ -125,6 +177,7 @@ else
 fi
 
 if [ "${checkboxes[2]}" = "1" ]; then
+<<<<<<< HEAD
   sed -i .temp "s/myASUS/true/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
   # Do the dialog Reposado Server, add result in CONFIGURE and Intro file
   RESPONSE3=`$POPUP $RUNMODE --button1 "Ok" $OTHEROPTS3  --icon $ICON3 --title "${TITLE3}" --text "${TEXT3}" --label "$TEXT3B"`
@@ -175,14 +228,64 @@ else
   sed -i .temp "s/myallboot/false/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
   echo "" >> "$ROOTDIR"/Munki2_source/intro.txt
   echo "• L'agent ne lancera pas de mise à jour à chaque démarrage" >> "$ROOTDIR"/Munki2_source/intro.txt
+=======
+      # Do the dialog Reposado Server, add result in CONFIGURE and Intro file
+      RESPONSE3=`$POPUP $RUNMODE --button1 "Ok" $OTHEROPTS3  --icon $ICON3 --title "${TITLE3}" --text "${TEXT3}" --label "$TEXT3B"`
+      REPOSADOSRV=`echo $RESPONSE3 | sed 's/Ok//g' | sed 's/ //g'`
+      sed -i .temp "s/myreposado/$REPOSADOSRV/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+      sed -i .temp "s/myASUS/true/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+      echo "" >> "$ROOTDIR"/Munki2_source/intro.txt
+      echo "• Les mises à jour Apple sont configurées vers le serveur $REPOSADOSRV" >> "$ROOTDIR"/Munki2_source/intro.txt
+else 
+      REPOSADOSRV=''
+      sed -i .temp "s/http\:\/\/myreposado\/index.sucatalog/$REPOSADOSRV/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+      sed -i .temp "s/myASUS/false/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+      echo "" >> "$ROOTDIR"/Munki2_source/intro.txt
+      echo "• Les mises à jour Apple ne sont pas gérées par Munki" >> "$ROOTDIR"/Munki2_source/intro.txt
 fi
+
+if [ "${checkboxes[3]}" = "1" ]; then
+      # Do the dialog Notifications, add result in CONFIGURE and Intro file
+      sed -i .temp "s/SUPPRESSUSERNOTIFICATION=false/SUPPRESSUSERNOTIFICATION=true/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+      echo "" >> "$ROOTDIR"/Munki2_source/intro.txt
+      echo "• Aucune notification des mises à jour à l'utilisateur" >> "$ROOTDIR"/Munki2_source/intro.txt
+else
+      RESPONSE4=`$POPUP dropdown --button1 "Ok" $OTHEROPTS4  --icon $ICON4 --title "${TITLE4}" --text "${TEXT4}" --items "2" "3" "4" "5" "7" "15" "30" `
+      XDAYS=`echo $RESPONSE4 | sed 's/Ok//g' | sed 's/ //g'`
+      sed -i .temp "s/xdays/$XDAYS/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+      echo "" >> "$ROOTDIR"/Munki2_source/intro.txt
+      echo "• Les notifications des mises à jour se font tout les $XDAYS jours" >> "$ROOTDIR"/Munki2_source/intro.txt
+fi
+if [ "${checkboxes[4]}" = "1" ]; then
+      sed -i .temp "s/myboot/true/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+      echo "" >> "$ROOTDIR"/Munki2_source/intro.txt
+      echo "• L'agent lancera une mise à jour au prochain démarrage" >> "$ROOTDIR"/Munki2_source/intro.txt
+else
+      sed -i .temp "s/myboot/false/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+      echo "" >> "$ROOTDIR"/Munki2_source/intro.txt
+      echo "• L'agent ne lancera pas de mise à jour au prochain démarrage" >> "$ROOTDIR"/Munki2_source/intro.txt
+>>>>>>> origin/master
+fi
+if [ "${checkboxes[5]}" = "1" ]; then
+      sed -i .temp "s/myallboot/true/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+      echo "" >> "$ROOTDIR"/Munki2_source/intro.txt
+      echo "• L'agent lancera une mise à jour à chaque démarrage" >> "$ROOTDIR"/Munki2_source/intro.txt
+else
+      sed -i .temp "s/myallboot/false/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+      echo "" >> "$ROOTDIR"/Munki2_source/intro.txt
+      echo "• L'agent ne lancera pas de mise à jour à chaque démarrage" >> "$ROOTDIR"/Munki2_source/intro.txt
+fi      
 
 # Remove temp files
 rm "$ROOTDIR"/Munki2_source/*.temp
 
 # Remove old package file
 if [[ -d "$ROOTDIR"/build/"$MUNKISRV"_"$MUNKIVER"_"$MANIFEST".mpkg ]]; then
+<<<<<<< HEAD
   rm -Rf "$ROOTDIR"/build/"$MUNKISRV"_"$MUNKIVER"_"$MANIFEST".mpkg
+=======
+      rm -Rf "$ROOTDIR"/build/"$MUNKISRV"_"$MUNKIVER"_"$MANIFEST".mpkg
+>>>>>>> origin/master
 fi
 
 # Build new package file
