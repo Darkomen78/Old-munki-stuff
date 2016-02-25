@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo 'Munki Tools install packager'
-echo 'Version 1.3.4 by Sylvain La Gravière'
+echo 'Version 1.3.5 by Sylvain La Gravière'
 echo 'Twitter : @darkomen78'
 echo 'Mail : darkomen@me.com'
 echo ''
@@ -28,7 +28,7 @@ ICON="gear"
 
 # Options for cocoaDialog Munki Server
 TITLE2="Munki server"
-TEXT2="munki.mydomain.lan"
+TEXT2="munki"
 TEXTB2="Adress without http://"
 OTHEROPTS2="--float --string-output --no-cancel"
 ICON2="fileserver"
@@ -36,7 +36,7 @@ ICON2="fileserver"
 # Options for cocoaDialog Reposado Server
 TITLE3="Reposado or Apple update server"
 TEXT3="reposado.mydomain.lan"
-TEXT3B="Adress without http:// and without index.sucatalog, leave blank for Apple Server"
+TEXT3B="Adress without http:// and without index.sucatalog, leave blank on 10.10+ and for Default Server"
 OTHEROPTS3="--float --string-output --no-cancel"
 ICON3="fileserver"
 
@@ -126,6 +126,7 @@ fi
 
 if [ "${checkboxes[2]}" = "1" ]; then
   sed -i .temp "s/myASUS/true/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
+  sed -i .temp "s/FORCEAPPLEUPDATES=false/FORCEAPPLEUPDATES=true/g" "$ROOTDIR"/Munki2_source/CLIENT.configure
   # Do the dialog Reposado Server, add result in CONFIGURE and Intro file
   RESPONSE3=`$POPUP $RUNMODE --button1 "Ok" $OTHEROPTS3  --icon $ICON3 --title "${TITLE3}" --text "${TEXT3}" --label "$TEXT3B"`
   REPOSADOSRV=`echo $RESPONSE3 | sed 's/Ok//g' | sed 's/ //g'`
