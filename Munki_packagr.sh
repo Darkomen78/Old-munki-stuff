@@ -13,7 +13,7 @@ GITMUNKI="https://github.com/munki/munki/releases/latest"
 LATESTVER=$(curl -L -s "$GITMUNKI" | egrep releases.*pkg | sed -ne 's/.*\(\/munki\/[^"]*\).*/\1/p')
 MUNKISRC="https://github.com/munki"$LATESTVER
 PACKAGESSRC="http://s.sudre.free.fr/Software/files/Packages.dmg"
-GITSRC="https://raw.github.com/Darkomen78/Munki/master/"
+GITSRC="https://github.com/Darkomen78/Munki/trunk/"
 
 # CocoaDialog path
 POPUP="$(dirname "$0")"/Munki_source/cocoaDialog.app/Contents/MacOS/cocoaDialog
@@ -56,18 +56,18 @@ if [ -d "$ROOTDIR"/Munki_source ]; then
     echo "...remove source files"
     rm -R "$ROOTDIR"/Munki_source/
     rm "$ROOTDIR"/Munki.pkgproj
-    echo "Download latest version of pkg source..."
-    curl -O -s -L "$GITSRC"Munki_prepkg.zip
-    unzip -q "Munki_prepkg.zip" && rm "Munki_prepkg.zip"
+    echo "Download latest version of pkgproj and source..."
+    svn -q export "$GITSRC/Munki_source"
+    svn -q export "$GITSRC/Munki.pkgproj"
     echo "Download latest version of Munki..."
-    curl -s -L "$MUNKISRC" -o "$ROOTDIR"/Munki_source/munkitools2.pkg && pkgutil --expand "$ROOTDIR"/Munki_source/munkitools.pkg "$ROOTDIR"/Munki_source/src
+    curl -s -L "$MUNKISRC" -o "$ROOTDIR"/Munki_source/munkitools.pkg && pkgutil --expand "$ROOTDIR"/Munki_source/munkitools.pkg "$ROOTDIR"/Munki_source/src
   else
     echo "...skip update source files"
   fi
 else
-  echo "Download latest version of pkg source..."
-  curl -O -s -L "$GITSRC"Munki_prepkg.zip
-  unzip -q "Munki_prepkg.zip" && rm "Munki_prepkg.zip"
+  echo "Download latest version of pkgproj and source..."
+  svn -q export "$GITSRC/Munki_source"
+  svn -q export "$GITSRC/Munki.pkgproj"
   echo "Download latest version of Munki..."
   curl -s -L "$MUNKISRC" -o "$ROOTDIR"/Munki_source/munkitools.pkg && pkgutil --expand "$ROOTDIR"/Munki_source/munkitools.pkg "$ROOTDIR"/Munki_source/src
 fi
@@ -109,9 +109,11 @@ if [ "${checkboxes[1]}" = "1" ]; then
   # Do the dialog Manifest, add result in CONFIGURE and Intro file
   RESPONSE=`$POPUP $RUNMODE --button1 "Ok" $OTHEROPTS  --icon $ICON --title "${TITLE}" --text "${TEXT}" --label "$TEXTB"`
   MANIFEST=`echo $RESPONSE | sed 's/Ok//g' | sed 's/ //g'`
+  echo "" >> "$ROOTDIR"/Munki_source/intro.txt
   echo "• Le fichier $MANIFEST est le manifest par défaut sur le serveur $MUNKISRV" >> "$ROOTDIR"/Munki_source/intro.txt
   sed -i .temp "s/mymanifest/$MANIFEST/g" "$ROOTDIR"/Munki_source/CLIENT.configure
 else
+  echo "" >> "$ROOTDIR"/Munki_source/intro.txt
   echo "• Il n'y a pas de manifest par défaut pour ce client" >> "$ROOTDIR"/Munki_source/intro.txt
   sed -i .temp "s/mymanifest//g" "$ROOTDIR"/Munki_source/CLIENT.configure
   MANIFEST="No_manifest"
@@ -134,8 +136,8 @@ if [ "${checkboxes[3]}" = "1" ]; then
   echo "" >> "$ROOTDIR"/Munki_source/intro.txt
   echo "• Aucune notification des mises à jour à l'utilisateur" >> "$ROOTDIR"/Munki_source/intro.txt
 else
-  RESPONSE4=`$POPUP dropdown --button1 "Ok" $OTHEROPTS4  --icon $ICON4 --title "${TITLE4}" --text "${TEXT4}" --items "2" "3" "4" "5" "7" "15" "30" `
-  XDAYS=`echo $RESPONSE4 | sed 's/Ok//g' | sed 's/ //g'`
+  RESPONSE4=`$POPUP dropdown --button1 "Ok" $OTHEROPTS3  --icon $ICON3 --title "${TITLE3}" --text "${TEXT3}" --items "2" "3" "4" "5" "7" "15" "30" `
+  XDAYS=`echo $RESPONSE3 | sed 's/Ok//g' | sed 's/ //g'`
   sed -i .temp "s/=xdays/=$XDAYS/g" "$ROOTDIR"/Munki_source/CLIENT.configure
   echo "" >> "$ROOTDIR"/Munki_source/intro.txt
   echo "• Les notifications des mises à jour se font tout les $XDAYS jours" >> "$ROOTDIR"/Munki_source/intro.txt
