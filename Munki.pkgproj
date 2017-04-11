@@ -25,7 +25,7 @@
 											<key>GID</key>
 											<integer>80</integer>
 											<key>PATH</key>
-											<string>Munki2_source/uninstall_Munki.command</string>
+											<string>Munki_source/uninstall_Munki.command</string>
 											<key>PATH_TYPE</key>
 											<integer>1</integer>
 											<key>PERMISSIONS</key>
@@ -475,14 +475,14 @@
 				<key>POSTINSTALL_PATH</key>
 				<dict>
 					<key>PATH</key>
-					<string>Munki2_source/CLIENT.configure</string>
+					<string>Munki_source/CLIENT.configure</string>
 					<key>PATH_TYPE</key>
 					<integer>1</integer>
 				</dict>
 				<key>PREINSTALL_PATH</key>
 				<dict>
 					<key>PATH</key>
-					<string>Munki2_source/preflight</string>
+					<string>Munki_source/preflight</string>
 					<key>PATH_TYPE</key>
 					<integer>1</integer>
 				</dict>
@@ -494,7 +494,7 @@
 						<key>GID</key>
 						<integer>0</integer>
 						<key>PATH</key>
-						<string>Munki2_source/core_app_launchd.xml</string>
+						<string>Munki_source/core_app_launchd.xml</string>
 						<key>PATH_TYPE</key>
 						<integer>1</integer>
 						<key>PERMISSIONS</key>
@@ -510,7 +510,7 @@
 						<key>GID</key>
 						<integer>0</integer>
 						<key>PATH</key>
-						<string>Munki2_source/munkitools2.pkg</string>
+						<string>Munki_source/munkitools.pkg</string>
 						<key>PATH_TYPE</key>
 						<integer>1</integer>
 						<key>PERMISSIONS</key>
@@ -535,7 +535,7 @@
 				<key>OVERWRITE_PERMISSIONS</key>
 				<false/>
 				<key>VERSION</key>
-				<string>2.4.0.2561</string>
+				<string>2.8</string>
 			</dict>
 			<key>UUID</key>
 			<string>352862E2-BF00-4AB2-9880-134B7FC19A7F</string>
@@ -688,7 +688,7 @@
 						<key>VALUE</key>
 						<dict>
 							<key>PATH</key>
-							<string>Munki2_source/intro.txt</string>
+							<string>Munki_source/intro.txt</string>
 							<key>PATH_TYPE</key>
 							<integer>1</integer>
 						</dict>
