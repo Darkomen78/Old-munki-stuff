@@ -140,17 +140,17 @@ else
   XDAYS=`echo $RESPONSE3 | sed 's/Ok//g' | sed 's/ //g'`
   sed -i .temp "s/=xdays/=$XDAYS/g" "$ROOTDIR"/Munki_source/CLIENT.configure
   echo "" >> "$ROOTDIR"/Munki_source/intro.txt
-  echo "• Les notifications des mises à jour se font tout les $XDAYS jours" >> "$ROOTDIR"/Munki_source/intro.txt
+  echo "• Les notifications des mises à jour à l'utilisateur se font tout les $XDAYS jours" >> "$ROOTDIR"/Munki_source/intro.txt
 fi
 
 if [ "${checkboxes[4]}" = "1" ]; then
   sed -i .temp "s/myboot/true/g" "$ROOTDIR"/Munki_source/CLIENT.configure
   echo "" >> "$ROOTDIR"/Munki_source/intro.txt
-  echo "• L'agent lancera une mise à jour au premier démarrage après l'installation" >> "$ROOTDIR"/Munki_source/intro.txt
+  echo "• L'agent lancera une mise à jour automatique au redémarrage après l'installation" >> "$ROOTDIR"/Munki_source/intro.txt
 else
   sed -i .temp "s/myboot/false/g" "$ROOTDIR"/Munki_source/CLIENT.configure
   echo "" >> "$ROOTDIR"/Munki_source/intro.txt
-  echo "• L'agent ne lancera pas de mise à jour au premier démarrage après l'installation" >> "$ROOTDIR"/Munki_source/intro.txt
+  echo "• L'agent ne lancera pas de mise à jour automatique après l'installation" >> "$ROOTDIR"/Munki_source/intro.txt
 fi
 if [ "${checkboxes[5]}" = "1" ]; then
   sed -i .temp "s/myallboot/true/g" "$ROOTDIR"/Munki_source/CLIENT.configure
