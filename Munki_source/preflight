@@ -1,0 +1,21 @@
+#!/bin/bash
+#
+# Merciless uninstall of munki.
+
+if [ -f '/Library/Preferences/ManagedInstalls.plist' ]; then
+	sudo mv /Library/Preferences/ManagedInstalls.plist /Library/Preferences/ManagedInstalls_Previous.plist
+fi
+launchctl unload /Library/LaunchDaemons/com.googlecode.munki.*
+rm -rf '/Applications/Utilities/Managed Software Update.app'
+rm -rf '/Applications/Managed Software Center.app'
+rm -f /Library/LaunchDaemons/com.googlecode.munki.*
+rm -f /Library/LaunchAgents/com.googlecode.munki.*
+rm -rf '/Library/Managed Installs'
+rm -rf /usr/local/munki
+pkgutil --forget com.googlecode.munki.core
+pkgutil --forget com.googlecode.munki.admin
+pkgutil --forget com.googlecode.munki.app
+pkgutil --forget com.googlecode.munki.launchd
+pkgutil --forget com.googlecode.munki
+pkgutil --forget com.github.munkireport
+exit 0

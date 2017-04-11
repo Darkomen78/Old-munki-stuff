@@ -1,0 +1,122 @@
+#!/bin/bash
+
+##################################################
+###### ManagedInstalls plist customization #######
+##################################################
+## v1.3.4 ##
+############
+
+# Determine working directory
+install_dir=`dirname $0`
+
+# Install Munki Tools using the specified installer packages in the working directory
+sudo /usr/sbin/installer -applyChoiceChangesXML $install_dir/core_app_launchd.xml -pkg $install_dir/munkitools.pkg -target "/"
+
+# Force check on first boot
+FIRSTBOOTCHECK=myboot
+
+# Force check at each login screen
+ALLBOOTCHECK=myallboot
+
+#####################################
+#### Configuration de connexion #####
+#####################################
+
+# Adresse complète du repertoire principal de Munki
+SOFTWAREREPOURL='http://mymunki'
+
+# Nom du manifest sur le serveur, si rien n'est indiqué, Munki esserai de trouvé le manifest avec les noms suivants, dans l'ordre : FQDN, nom de machine court, numéros de série, site_default
+CLIENTIDENTIFIER='mymanifest'
+
+# Emplacement du fichier de préférences
+MUNKIPREF='/Library/Preferences/ManagedInstalls'
+
+####################################
+### Configuration de l'interface ###
+####################################
+
+# Nombre de jour entre chaque notification à l'utilisateur (1 par défaut)
+DAYSBETWEENNOTIFICATIONS=xdays
+
+# Munki gère aussi les mises à jour Apple (false par défaut)
+INSTALLAPPLESOFTWAREUPDATES=myASUS
+
+# Les logs sont aussi envoyer dans le fichier system.log (false par défaut)
+LOGTOSYSLOG=false
+
+# Supprime toutes les notifications à l'utilisateur (false par défaut)
+SUPPRESSUSERNOTIFICATION=false
+
+# Munki n'installe et ne désinstalle pas automatiquement les logiciels (false par défaut)
+SUPPRESSAUTOINSTALL=false
+
+# Munki n'installe pas les logiciels sur la page de Login sauf pour les "unattended" (false par défaut)
+SUPPRESSLOGINWINDOWINSTALL=false
+
+# Supprime le bouton "annuler" pendant l'installation (false par défaut)
+SUPPRESSSTOPBUTTONONINSTALL=false
+
+# Toutes les installation demande une déconnexion (false par défaut)
+INSTALLREQUIRESLOGOUT=false
+
+# Ajout des détails lors de la suppression automatique des logiciels (false par défaut)
+SHOWREMOVALDETAIL=false
+
+###################################################################
+###################################################################
+########### NE RIEN MODIFIER EN DESSOUS DE CETTE LIGNE ############
+###################################################################
+###################################################################
+
+sudo defaults write "$MUNKIPREF" SoftwareRepoURL -string "$SOFTWAREREPOURL"
+sudo defaults write "$MUNKIPREF" ClientIdentifier -string "$CLIENTIDENTIFIER"
+
+if [ "$INSTALLAPPLESOFTWAREUPDATES" == "true" ]; then
+/usr/sbin/softwareupdate --schedule off
+else
+/usr/sbin/softwareupdate --schedule on
+fi
+sudo defaults write "$MUNKIPREF" InstallAppleSoftwareUpdates -bool $INSTALLAPPLESOFTWAREUPDATES
+
+sudo defaults write "$MUNKIPREF" LogToSyslog -bool $LOGTOSYSLOG
+sudo defaults write "$MUNKIPREF" SuppressAutoInstall -bool $SUPPRESSAUTOINSTALL
+sudo defaults write "$MUNKIPREF" SuppressLoginwindowInstall -bool $SUPPRESSLOGINWINDOWINSTALL
+sudo defaults write "$MUNKIPREF" SuppressStopButtonOnInstall -bool $SUPPRESSSTOPBUTTONONINSTALL
+sudo defaults write "$MUNKIPREF" InstallRequiresLogout -bool $INSTALLREQUIRESLOGOUT
+sudo defaults write "$MUNKIPREF" ShowRemovalDetail -bool $SHOWREMOVALDETAIL
+
+sudo defaults write "$MUNKIPREF" SuppressUserNotification -bool "$SUPPRESSUSERNOTIFICATION"
+if [ "$DAYSBETWEENNOTIFICATIONS" != "xdays" ]; then
+sudo defaults write "$MUNKIPREF" DaysBetweenNotifications -int "$DAYSBETWEENNOTIFICATIONS"
+fi
+
+if [ "$FIRSTBOOTCHECK" == "true" ]; then
+touch '/Users/Shared/.com.googlecode.munki.checkandinstallatstartup'
+fi
+
+if [ "$ALLBOOTCHECK" == "true" ]; then
+echo '#!/bin/bash
+PREFREPOURL=$(/usr/libexec/PlistBuddy -c print /Library/Preferences/ManagedInstalls.plist | grep "Repo" | cut -d"/" -f 3)
+while ! ping -c1 $PREFREPOURL &>/dev/null; do echo "Munki server not found"; sleep 1; done;
+/usr/local/munki/managedsoftwareupdate --auto
+' > /usr/local/munki/loginhelper
+chmod +x /usr/local/munki/loginhelper
+echo '<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.googlecode.munki.managedsoftwareupdate-autologinwindow</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/local/munki/loginhelper</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>LaunchOnlyOnce</key>
+  <true/>
+</dict>
+</plist>
+' > /Library/LaunchDaemons/com.googlecode.munki.managedsoftwareupdate-autologinwindow.plist
+fi
+exit 0
