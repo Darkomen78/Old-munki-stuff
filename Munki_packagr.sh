@@ -34,7 +34,7 @@ OTHEROPTS2="--float --string-output --no-cancel"
 ICON2="fileserver"
 
 # Options for cocoaDialog Notifications
-TITLE3="Days between notifications"
+TITLE3="Time between each user notifications"
 TEXT3="Number of days :"
 OTHEROPTS3="--float --string-output --no-cancel"
 ICON3="sync"
@@ -136,7 +136,7 @@ if [ "${checkboxes[3]}" = "1" ]; then
   echo "" >> "$ROOTDIR"/Munki_source/intro.txt
   echo "• Aucune notification des mises à jour à l'utilisateur" >> "$ROOTDIR"/Munki_source/intro.txt
 else
-  RESPONSE4=`$POPUP dropdown --button1 "Ok" $OTHEROPTS3  --icon $ICON3 --title "${TITLE3}" --text "${TEXT3}" --items "2" "3" "4" "5" "7" "15" "30" `
+  RESPONSE3=`$POPUP dropdown --button1 "Ok" $OTHEROPTS3  --icon $ICON3 --title "${TITLE3}" --text "${TEXT3}" --items "2" "3" "4" "5" "7" "15" "30"`
   XDAYS=`echo $RESPONSE3 | sed 's/Ok//g' | sed 's/ //g'`
   sed -i .temp "s/=xdays/=$XDAYS/g" "$ROOTDIR"/Munki_source/CLIENT.configure
   echo "" >> "$ROOTDIR"/Munki_source/intro.txt
